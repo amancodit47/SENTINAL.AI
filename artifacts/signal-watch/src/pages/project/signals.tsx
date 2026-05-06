@@ -33,7 +33,7 @@ export default function ProjectSignals({ params }: { params: { id: string } }) {
 
   const handleAnalyze = (signalId: number) => {
     analyzeSignal.mutate(
-      { projectId, signalId },
+      { id: signalId },
       {
         onSuccess: () => {
           toast({ title: "Signal analyzed successfully" });
@@ -133,7 +133,7 @@ export default function ProjectSignals({ params }: { params: { id: string } }) {
                         <ShieldAlert className="h-3 w-3 mr-1" /> PII Detected
                       </Badge>
                     )}
-                    {getSentimentBadge(signal.sentiment)}
+                    {getSentimentBadge(signal.sentiment ?? null)}
                     
                     {signal.confidenceScore && (
                       <Badge variant="outline" className="text-muted-foreground">
@@ -176,8 +176,8 @@ export default function ProjectSignals({ params }: { params: { id: string } }) {
                   </div>
                   
                   {!signal.isAnalyzed ? (
-                    <Button variant="outline" size="sm" onClick={() => handleAnalyze(signal.id)} disabled={analyzeSignal.isPending && analyzeSignal.variables?.signalId === signal.id}>
-                      {analyzeSignal.isPending && analyzeSignal.variables?.signalId === signal.id ? (
+                    <Button variant="outline" size="sm" onClick={() => handleAnalyze(signal.id)} disabled={analyzeSignal.isPending && analyzeSignal.variables?.id === signal.id}>
+                      {analyzeSignal.isPending && analyzeSignal.variables?.id === signal.id ? (
                         <Loader2 className="h-3 w-3 animate-spin mr-2" />
                       ) : (
                         <ArrowRight className="h-3 w-3 mr-2" />

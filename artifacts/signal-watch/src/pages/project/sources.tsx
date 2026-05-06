@@ -35,7 +35,7 @@ export default function ProjectSources({ params }: { params: { id: string } }) {
 
   const handleToggleEnabled = (sourceId: number, currentEnabled: boolean) => {
     updateSource.mutate(
-      { id: sourceId, data: { isEnabled: !currentEnabled } },
+      { projectId, id: sourceId, data: { isEnabled: !currentEnabled } },
       {
         onSuccess: () => {
           toast({ title: "Source updated" });
@@ -47,7 +47,7 @@ export default function ProjectSources({ params }: { params: { id: string } }) {
 
   const handleDelete = (sourceId: number) => {
     deleteSource.mutate(
-      { id: sourceId },
+      { projectId, id: sourceId },
       {
         onSuccess: () => {
           toast({ title: "Source removed" });
@@ -59,7 +59,7 @@ export default function ProjectSources({ params }: { params: { id: string } }) {
 
   const handleTrigger = (sourceId: number) => {
     triggerCollection.mutate(
-      { projectId, sourceId },
+      { projectId, id: sourceId },
       {
         onSuccess: (data) => {
           toast({ 
@@ -161,9 +161,9 @@ export default function ProjectSources({ params }: { params: { id: string } }) {
                   <Button 
                     size="sm" 
                     onClick={() => handleTrigger(source.id)}
-                    disabled={(!source.isEnabled) || (triggerCollection.isPending && triggerCollection.variables?.sourceId === source.id)}
+                    disabled={(!source.isEnabled) || (triggerCollection.isPending && triggerCollection.variables?.id === source.id)}
                   >
-                    {triggerCollection.isPending && triggerCollection.variables?.sourceId === source.id ? (
+                    {triggerCollection.isPending && triggerCollection.variables?.id === source.id ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <RefreshCw className="h-4 w-4 mr-2" />
@@ -195,12 +195,12 @@ function CreateSourceDialog({ projectId, engineTypes, open, onOpenChange }: { pr
 
     createSource.mutate(
       { 
+        projectId,
         data: { 
-          projectId, // API spec might have projectId in body or path depending. Assuming body has engineTypeId
           name, 
           engineTypeId: parseInt(engineTypeId, 10), 
           latency: latency as any,
-          config: {} // Default empty config for UI
+          config: {}
         } 
       },
       {
