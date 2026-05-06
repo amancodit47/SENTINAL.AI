@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SignalWatch – Healthcare Social Listening API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: projects
+    description: Monitoring project operations
+  - name: sources
+    description: Data source operations
+  - name: keywords
+    description: Keyword operations
+  - name: signals
+    description: Signal/mention operations
+  - name: analysis
+    description: Analysis and AI operations
+  - name: engine-types
+    description: Engine type administration
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,573 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Projects ───────────────────────────────────────────────────────────────
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all monitoring projects
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a new monitoring project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectBody"
+      responses:
+        "201":
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          description: Validation error
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectBody"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /projects/{id}/summary:
+    get:
+      operationId: getProjectSummary
+      tags: [projects]
+      summary: Get signal summary stats for a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectSummary"
+        "404":
+          description: Not found
+
+  # ─── Keywords ────────────────────────────────────────────────────────────────
+  /projects/{projectId}/keywords:
+    get:
+      operationId: listKeywords
+      tags: [keywords]
+      summary: List keywords for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of keywords
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Keyword"
+    post:
+      operationId: createKeyword
+      tags: [keywords]
+      summary: Add a keyword to a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateKeywordBody"
+      responses:
+        "201":
+          description: Created keyword
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Keyword"
+
+  /projects/{projectId}/keywords/{id}:
+    delete:
+      operationId: deleteKeyword
+      tags: [keywords]
+      summary: Remove a keyword from a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ─── Sources ─────────────────────────────────────────────────────────────────
+  /projects/{projectId}/sources:
+    get:
+      operationId: listSources
+      tags: [sources]
+      summary: List sources for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Source"
+    post:
+      operationId: createSource
+      tags: [sources]
+      summary: Add a source to a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSourceBody"
+      responses:
+        "201":
+          description: Created source
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Source"
+
+  /projects/{projectId}/sources/{id}:
+    patch:
+      operationId: updateSource
+      tags: [sources]
+      summary: Update a source configuration
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSourceBody"
+      responses:
+        "200":
+          description: Updated source
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Source"
+    delete:
+      operationId: deleteSource
+      tags: [sources]
+      summary: Remove a source from a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/sources/{id}/trigger:
+    post:
+      operationId: triggerSourceCollection
+      tags: [sources]
+      summary: Trigger an immediate data collection run for a source
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Collection triggered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TriggerResult"
+
+  # ─── Signals ─────────────────────────────────────────────────────────────────
+  /projects/{projectId}/signals:
+    get:
+      operationId: listSignals
+      tags: [signals]
+      summary: List signals/mentions for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: sourceType
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: sentiment
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: hasSafetyFlag
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of signals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignalListResponse"
+
+  /signals/{id}:
+    get:
+      operationId: getSignal
+      tags: [signals]
+      summary: Get a single signal with full analysis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Signal with analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signal"
+        "404":
+          description: Not found
+
+  /projects/{projectId}/signals/timeline:
+    get:
+      operationId: getSignalTimeline
+      tags: [signals]
+      summary: Get signal counts over time for trending chart
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: days
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Timeline data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimelinePoint"
+
+  /projects/{projectId}/signals/safety-alerts:
+    get:
+      operationId: getSafetyAlerts
+      tags: [signals]
+      summary: Get signals flagged as safety issues
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Safety alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Signal"
+
+  /projects/{projectId}/signals/sentiment-breakdown:
+    get:
+      operationId: getSentimentBreakdown
+      tags: [signals]
+      summary: Get sentiment breakdown for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: days
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Sentiment breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SentimentBreakdown"
+
+  /projects/{projectId}/signals/top-entities:
+    get:
+      operationId: getTopEntities
+      tags: [signals]
+      summary: Get most-mentioned entities in signals
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Top entities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EntityCount"
+
+  # ─── Analysis ────────────────────────────────────────────────────────────────
+  /signals/{id}/analyze:
+    post:
+      operationId: analyzeSignal
+      tags: [analysis]
+      summary: Run AI analysis on a signal (sentiment, entities, safety, PII)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signal"
+
+  /projects/{projectId}/analyze-batch:
+    post:
+      operationId: analyzeProjectBatch
+      tags: [analysis]
+      summary: Run AI analysis on all unanalyzed signals in a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Batch analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchAnalysisResult"
+
+  # ─── Engine Types (Admin) ────────────────────────────────────────────────────
+  /engine-types:
+    get:
+      operationId: listEngineTypes
+      tags: [engine-types]
+      summary: List all available engine/source types
+      responses:
+        "200":
+          description: List of engine types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EngineType"
+    post:
+      operationId: createEngineType
+      tags: [engine-types]
+      summary: Register a new engine type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEngineTypeBody"
+      responses:
+        "201":
+          description: Created engine type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EngineType"
+
+  /engine-types/{id}:
+    patch:
+      operationId: updateEngineType
+      tags: [engine-types]
+      summary: Update an engine type configuration
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEngineTypeBody"
+      responses:
+        "200":
+          description: Updated engine type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EngineType"
+    delete:
+      operationId: deleteEngineType
+      tags: [engine-types]
+      summary: Delete an engine type
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +613,432 @@ components:
       required:
         - status
 
+    # ─── Project ───────────────────────────────────────────────────────────────
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, paused, archived]
+        totalSignals:
+          type: integer
+        safetyAlerts:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - status
+        - totalSignals
+        - safetyAlerts
+        - createdAt
+        - updatedAt
+
+    CreateProjectBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+      required:
+        - name
+
+    UpdateProjectBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        status:
+          type: ["string", "null"]
+          enum: [active, paused, archived, null]
+
+    ProjectSummary:
+      type: object
+      properties:
+        projectId:
+          type: integer
+        totalSignals:
+          type: integer
+        safetyAlerts:
+          type: integer
+        piiFlags:
+          type: integer
+        positiveCount:
+          type: integer
+        negativeCount:
+          type: integer
+        neutralCount:
+          type: integer
+        sourceCounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceCount"
+        recentSignals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signal"
+      required:
+        - projectId
+        - totalSignals
+        - safetyAlerts
+        - piiFlags
+        - positiveCount
+        - negativeCount
+        - neutralCount
+        - sourceCounts
+        - recentSignals
+
+    SourceCount:
+      type: object
+      properties:
+        sourceType:
+          type: string
+        count:
+          type: integer
+      required:
+        - sourceType
+        - count
+
+    # ─── Keyword ──────────────────────────────────────────────────────────────
+    Keyword:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        term:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - projectId
+        - term
+        - createdAt
+
+    CreateKeywordBody:
+      type: object
+      properties:
+        term:
+          type: string
+      required:
+        - term
+
+    # ─── Source ───────────────────────────────────────────────────────────────
+    Source:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        engineTypeId:
+          type: integer
+        engineTypeName:
+          type: string
+        name:
+          type: string
+        config:
+          type: object
+          additionalProperties: true
+        latency:
+          type: string
+          enum: [realtime, daily, weekly]
+        isEnabled:
+          type: boolean
+        lastRunAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - projectId
+        - engineTypeId
+        - engineTypeName
+        - name
+        - latency
+        - isEnabled
+        - createdAt
+        - updatedAt
+
+    CreateSourceBody:
+      type: object
+      properties:
+        engineTypeId:
+          type: integer
+        name:
+          type: string
+        config:
+          type: object
+          additionalProperties: true
+        latency:
+          type: string
+          enum: [realtime, daily, weekly]
+      required:
+        - engineTypeId
+        - name
+        - latency
+
+    UpdateSourceBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        config:
+          type: ["object", "null"]
+          additionalProperties: true
+        latency:
+          type: ["string", "null"]
+          enum: [realtime, daily, weekly, null]
+        isEnabled:
+          type: ["boolean", "null"]
+
+    TriggerResult:
+      type: object
+      properties:
+        signalsCollected:
+          type: integer
+        message:
+          type: string
+      required:
+        - signalsCollected
+        - message
+
+    # ─── Signal ───────────────────────────────────────────────────────────────
+    Signal:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        sourceId:
+          type: integer
+        sourceType:
+          type: string
+        externalId:
+          type: ["string", "null"]
+        content:
+          type: string
+        author:
+          type: ["string", "null"]
+        url:
+          type: ["string", "null"]
+        publishedAt:
+          type: ["string", "null"]
+        sentiment:
+          type: ["string", "null"]
+          enum: [positive, negative, neutral, null]
+        sentimentScore:
+          type: ["number", "null"]
+        confidenceScore:
+          type: ["number", "null"]
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Entity"
+        hasSafetyFlag:
+          type: boolean
+        safetyReason:
+          type: ["string", "null"]
+        hasPiiFlag:
+          type: boolean
+        piiTypes:
+          type: array
+          items:
+            type: string
+        isAnalyzed:
+          type: boolean
+        matchedKeywords:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - projectId
+        - sourceId
+        - sourceType
+        - content
+        - hasSafetyFlag
+        - hasPiiFlag
+        - isAnalyzed
+        - entities
+        - piiTypes
+        - matchedKeywords
+        - createdAt
+
+    Entity:
+      type: object
+      properties:
+        text:
+          type: string
+        type:
+          type: string
+        confidence:
+          type: number
+      required:
+        - text
+        - type
+        - confidence
+
+    SignalListResponse:
+      type: object
+      properties:
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signal"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+      required:
+        - signals
+        - total
+        - limit
+        - offset
+
+    TimelinePoint:
+      type: object
+      properties:
+        date:
+          type: string
+        total:
+          type: integer
+        positive:
+          type: integer
+        negative:
+          type: integer
+        neutral:
+          type: integer
+        safetyAlerts:
+          type: integer
+      required:
+        - date
+        - total
+        - positive
+        - negative
+        - neutral
+        - safetyAlerts
+
+    SentimentBreakdown:
+      type: object
+      properties:
+        positive:
+          type: integer
+        negative:
+          type: integer
+        neutral:
+          type: integer
+        unanalyzed:
+          type: integer
+        avgScore:
+          type: ["number", "null"]
+      required:
+        - positive
+        - negative
+        - neutral
+        - unanalyzed
+
+    EntityCount:
+      type: object
+      properties:
+        text:
+          type: string
+        type:
+          type: string
+        count:
+          type: integer
+      required:
+        - text
+        - type
+        - count
+
+    BatchAnalysisResult:
+      type: object
+      properties:
+        analyzed:
+          type: integer
+        errors:
+          type: integer
+        message:
+          type: string
+      required:
+        - analyzed
+        - errors
+        - message
+
+    # ─── Engine Type ──────────────────────────────────────────────────────────
+    EngineType:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        configSchema:
+          type: object
+          additionalProperties: true
+        isBuiltIn:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - slug
+        - isBuiltIn
+        - createdAt
+        - updatedAt
+
+    CreateEngineTypeBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        configSchema:
+          type: object
+          additionalProperties: true
+      required:
+        - name
+        - slug
+
+    UpdateEngineTypeBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        configSchema:
+          type: ["object", "null"]
+          additionalProperties: true

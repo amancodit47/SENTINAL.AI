@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "SignalWatch – Healthcare Social Listening"
+version = "1.0.0"
+id = "artifacts/signal-watch"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19464
+
+[services.development]
+run = "pnpm --filter @workspace/signal-watch run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/signal-watch", "run", "build" ]
+publicDir = "artifacts/signal-watch/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19464"
+BASE_PATH = "/"
