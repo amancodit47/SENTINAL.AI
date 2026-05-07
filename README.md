@@ -469,13 +469,3 @@ pnpm run lint                    # Lint code (if configured)
 | pnpm not found | Install with `npm install -g pnpm` |
 
 ---
-
-## License
-
-MIT
-
----
-
-## Support
-
-For issues, questions, or contributions, please refer to the project documentation or contact the development team.
