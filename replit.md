@@ -1,4 +1,4 @@
-# SignalWatch
+# SENTINEL AI
 
 A real-time healthcare social listening platform that monitors Twitter/X, Reddit, and web sources for patient safety signals, adverse events, and treatment experiences — with AI-powered sentiment analysis, entity extraction, and PII detection.
 

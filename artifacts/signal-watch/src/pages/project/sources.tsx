@@ -81,7 +81,7 @@ export default function ProjectSources({ params }: { params: { id: string } }) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Data Sources</h1>
-            <p className="text-muted-foreground mt-1">Configure where SignalWatch collects data from.</p>
+            <p className="text-muted-foreground mt-1">Configure where SENTINEL AI collects data from.</p>
           </div>
           <CreateSourceDialog 
             projectId={projectId} 

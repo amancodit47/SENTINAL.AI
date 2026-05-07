@@ -31,7 +31,7 @@ export function AppLayout({ children, projectId }: AppLayoutProps) {
         <div className="p-4 border-b border-border">
           <Link href="/projects" className="flex items-center gap-2 text-primary font-bold text-xl">
             <ActivitySquare className="h-6 w-6" />
-            SignalWatch
+            SENTINEL AI
           </Link>
         </div>
 

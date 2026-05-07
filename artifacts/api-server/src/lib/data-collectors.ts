@@ -74,7 +74,7 @@ async function collectReddit(source: Source, keywords: string[]): Promise<Collec
   for (const keyword of keywords.slice(0, 2)) {
     try {
       const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(keyword)}&sort=new&limit=10&restrict_sr=false${subreddits ? `&sr=${subreddits}` : ""}`;
-      const response = await fetch(url, { headers: { "User-Agent": "SignalWatch/1.0" } });
+      const response = await fetch(url, { headers: { "User-Agent": "SentinelAI/1.0" } });
       if (!response.ok) continue;
       const data = await response.json() as { data?: { children?: Array<{ data?: { id?: string; selftext?: string; title?: string; author?: string; permalink?: string; created_utc?: number } }> } };
       const posts = data?.data?.children ?? [];
